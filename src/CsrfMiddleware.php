@@ -47,7 +47,7 @@ final class CsrfMiddleware
     public function __invoke(Request $request, Response $response, callable $next = null)
     {
         if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE', 'PATCH'])) {
-            $this->checkCsrf($request);
+            $this->checkCsrf($request, $response);
         }
 
         if (!$this->session->has($request, self::CSRF_KEY)) {
@@ -62,34 +62,37 @@ final class CsrfMiddleware
     }
 
     /**
-     * @param Request $request
+     * @param Request  $request
+     * @param Response $response
      *
      * @throws HttpException
      */
-    private function checkCsrf(Request $request)
+    private function checkCsrf(Request $request, Response $response)
     {
         if (!$this->session->has($request, self::CSRF_KEY)) {
-            $this->throwException(self::EXCEPTION_MISSING_IN_SESSION);
+            $this->throwException($request, $response, self::EXCEPTION_MISSING_IN_SESSION);
         }
 
         $data = $request->getParsedBody();
 
         if (!isset($data[self::CSRF_KEY])) {
-            $this->throwException(self::EXCEPTION_MISSING_IN_BODY);
+            $this->throwException($request, $response, self::EXCEPTION_MISSING_IN_BODY);
         }
 
         if ($this->session->get($request, self::CSRF_KEY) !== $data[self::CSRF_KEY]) {
-            $this->throwException(self::EXCEPTION_IS_NOT_SAME);
+            $this->throwException($request, $response, self::EXCEPTION_IS_NOT_SAME);
         }
     }
 
     /**
-     * @param string $message
+     * @param Request  $request
+     * @param Response $response
+     * @param string   $message
      *
      * @throws HttpException
      */
-    private function throwException(string $message)
+    private function throwException(Request $request, Response $response, string $message)
     {
-        throw HttpException::create(self::EXCEPTION_STATUS, $message);
+        throw HttpException::create($request, $response, self::EXCEPTION_STATUS, $message);
     }
 }
