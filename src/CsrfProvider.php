@@ -18,14 +18,8 @@ final class CsrfProvider implements ServiceProviderInterface
             return new CsrfTokenGenerator($container['csrf.tokenGenerator.entropy']);
         };
 
-        $container['csrf.errorHandler.key'] = '';
-
         $container['csrf.middleware'] = function () use ($container) {
-            return new CsrfMiddleware(
-                $container['csrf.tokenGenerator'],
-                $container[$container['csrf.errorHandler.key']],
-                $container['session']
-            );
+            return new CsrfMiddleware($container['csrf.tokenGenerator'], $container['session']);
         };
     }
 }

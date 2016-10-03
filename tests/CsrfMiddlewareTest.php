@@ -4,7 +4,7 @@ namespace Chubbyphp\Tests\Csrf;
 
 use Chubbyphp\Csrf\CsrfTokenGeneratorInterface;
 use Chubbyphp\Csrf\CsrfMiddleware;
-use Chubbyphp\ErrorHandler\ErrorHandlerInterface;
+use Chubbyphp\ErrorHandler\HttpException;
 use Chubbyphp\Session\SessionInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -18,7 +18,6 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
     {
         $middleware = new CsrfMiddleware(
             $this->getCsrfTokenGenerator(),
-            $this->getErrorHandler(),
             $this->getSession([])
         );
 
@@ -32,7 +31,6 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
     {
         $middleware = new CsrfMiddleware(
             $this->getCsrfTokenGenerator(),
-            $this->getErrorHandler(),
             $this->getSession([])
         );
 
@@ -45,9 +43,12 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
 
     public function testInvokeWithPostRequestWithoutToken()
     {
+        self::expectException(HttpException::class);
+        self::expectExceptionMessage(CsrfMiddleware::EXCEPTION_MISSING_IN_SESSION);
+        self::expectExceptionCode(CsrfMiddleware::EXCEPTION_STATUS);
+
         $middleware = new CsrfMiddleware(
             $this->getCsrfTokenGenerator(),
-            $this->getErrorHandler(),
             $this->getSession([])
         );
 
@@ -59,9 +60,12 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
 
     public function testInvokeWithPostRequestWithTokenWithoutData()
     {
+        self::expectException(HttpException::class);
+        self::expectExceptionMessage(CsrfMiddleware::EXCEPTION_MISSING_IN_BODY);
+        self::expectExceptionCode(CsrfMiddleware::EXCEPTION_STATUS);
+
         $middleware = new CsrfMiddleware(
             $this->getCsrfTokenGenerator(),
-            $this->getErrorHandler(),
             $this->getSession([
                 CsrfMiddleware::CSRF_KEY => 'token',
             ])
@@ -77,7 +81,6 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
     {
         $middleware = new CsrfMiddleware(
             $this->getCsrfTokenGenerator(),
-            $this->getErrorHandler(),
             $this->getSession([
                 CsrfMiddleware::CSRF_KEY => 'token',
             ])
@@ -91,9 +94,12 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
 
     public function testInvokeWithPostRequestWithTokenWithInvalidData()
     {
+        self::expectException(HttpException::class);
+        self::expectExceptionMessage(CsrfMiddleware::EXCEPTION_IS_NOT_SAME);
+        self::expectExceptionCode(CsrfMiddleware::EXCEPTION_STATUS);
+
         $middleware = new CsrfMiddleware(
             $this->getCsrfTokenGenerator(),
-            $this->getErrorHandler(),
             $this->getSession([
                 CsrfMiddleware::CSRF_KEY => 'token',
             ])
@@ -119,30 +125,6 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         $tokenGenerator->expects(self::any())->method('generate')->willReturn('token');
 
         return $tokenGenerator;
-    }
-
-    /**
-     * @return ErrorHandlerInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private function getErrorHandler(): ErrorHandlerInterface
-    {
-        $errorHandler = $this
-            ->getMockBuilder(ErrorHandlerInterface::class)
-            ->setMethods(['get', 'has', 'set'])
-            ->getMockForAbstractClass()
-        ;
-
-        $errorHandler
-            ->expects(self::any())
-            ->method('error')
-            ->willReturnCallback(
-                function (Request $request, Response $response, int $statusCode) {
-                    return $response->withStatus($statusCode);
-                }
-            )
-        ;
-
-        return $errorHandler;
     }
 
     /**

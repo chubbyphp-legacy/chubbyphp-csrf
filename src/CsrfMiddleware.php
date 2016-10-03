@@ -2,7 +2,7 @@
 
 namespace Chubbyphp\Csrf;
 
-use Chubbyphp\ErrorHandler\ErrorHandlerInterface;
+use Chubbyphp\ErrorHandler\HttpException;
 use Chubbyphp\Session\SessionInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -15,29 +15,25 @@ final class CsrfMiddleware
     private $csrfTokenGenerator;
 
     /**
-     * @var ErrorHandlerInterface
-     */
-    private $errorHandler;
-
-    /**
      * @var SessionInterface
      */
     private $session;
 
     const CSRF_KEY = 'csrf';
 
+    const EXCEPTION_STATUS = 424;
+
+    const EXCEPTION_MISSING_IN_SESSION = 'Csrf token is missing within session';
+    const EXCEPTION_MISSING_IN_BODY = 'Csrf token is missing within body';
+    const EXCEPTION_IS_NOT_SAME = 'Csrf token within body is not the same as in session';
+
     /**
      * @param CsrfTokenGeneratorInterface $csrfTokenGenerator
-     * @param ErrorHandlerInterface       $errorHandler
      * @param SessionInterface            $session
      */
-    public function __construct(
-        CsrfTokenGeneratorInterface $csrfTokenGenerator,
-        ErrorHandlerInterface $errorHandler,
-        SessionInterface $session
-    ) {
+    public function __construct(CsrfTokenGeneratorInterface $csrfTokenGenerator, SessionInterface $session)
+    {
         $this->csrfTokenGenerator = $csrfTokenGenerator;
-        $this->errorHandler = $errorHandler;
         $this->session = $session;
     }
 
@@ -51,9 +47,7 @@ final class CsrfMiddleware
     public function __invoke(Request $request, Response $response, callable $next = null)
     {
         if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE', 'PATCH'])) {
-            if (!$this->checkCsrf($request)) {
-                return $this->errorHandler->error($request, $response, 424);
-            }
+            $this->checkCsrf($request, $response);
         }
 
         if (!$this->session->has($request, self::CSRF_KEY)) {
@@ -68,26 +62,37 @@ final class CsrfMiddleware
     }
 
     /**
-     * @param Request $request
+     * @param Request  $request
+     * @param Response $response
      *
-     * @return bool
+     * @throws HttpException
      */
-    private function checkCsrf(Request $request): bool
+    private function checkCsrf(Request $request, Response $response)
     {
         if (!$this->session->has($request, self::CSRF_KEY)) {
-            return false;
+            $this->throwException($request, $response, self::EXCEPTION_MISSING_IN_SESSION);
         }
 
         $data = $request->getParsedBody();
 
         if (!isset($data[self::CSRF_KEY])) {
-            return false;
+            $this->throwException($request, $response, self::EXCEPTION_MISSING_IN_BODY);
         }
 
         if ($this->session->get($request, self::CSRF_KEY) !== $data[self::CSRF_KEY]) {
-            return false;
+            $this->throwException($request, $response, self::EXCEPTION_IS_NOT_SAME);
         }
+    }
 
-        return true;
+    /**
+     * @param Request  $request
+     * @param Response $response
+     * @param string   $message
+     *
+     * @throws HttpException
+     */
+    private function throwException(Request $request, Response $response, string $message)
+    {
+        throw HttpException::create($request, $response, self::EXCEPTION_STATUS, $message);
     }
 }
