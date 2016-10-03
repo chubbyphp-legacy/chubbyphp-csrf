@@ -15,6 +15,10 @@ A simple csrf solution based on [chubbyphp/chubbyphp-session][2].
  * chubbyphp/chubbyphp-error-handler: ~1.0
  * chubbyphp/chubbyphp-session: ~1.0
 
+## Suggest
+
+ * pimple/pimple: ~3.0
+
 ## Installation
 
 Through [Composer](http://getcomposer.org) as [chubbyphp/chubbyphp-csrf][1].
