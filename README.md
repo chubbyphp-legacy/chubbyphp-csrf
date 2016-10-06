@@ -47,9 +47,6 @@ namespace Chubbyphp\Csrf\SessionProvider;
 namespace Pimple\Container;
 
 $container = new Container();
-
-$container['csrf.errorHandler.key'] = 'myproject.errorHandler'; // key to the error handler which implements ErrorHandlerInterface
-
 $container->register(new CsrfProvider());
 $container->register(new SessionProvider());
 
