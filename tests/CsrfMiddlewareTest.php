@@ -24,7 +24,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         $request = $this->getRequest('GET', []);
         $response = $this->getResponse();
 
-        $middleware->__invoke($request, $response);
+        $middleware($request, $response);
     }
 
     public function testInvokeWithGetRequestWithNext()
@@ -37,7 +37,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         $request = $this->getRequest('GET', []);
         $response = $this->getResponse();
 
-        $middleware->__invoke($request, $response, function (Request $request, Response $response) {
+        $middleware($request, $response, function (Request $request, Response $response) {
         });
     }
 
@@ -55,7 +55,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         $request = $this->getRequest('POST', []);
         $response = $this->getResponse();
 
-        $middleware->__invoke($request, $response);
+        $middleware($request, $response);
     }
 
     public function testInvokeWithPostRequestWithTokenWithoutData()
@@ -74,7 +74,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         $request = $this->getRequest('POST', []);
         $response = $this->getResponse();
 
-        $middleware->__invoke($request, $response);
+        $middleware($request, $response);
     }
 
     public function testInvokeWithPostRequestWithTokenWithData()
@@ -89,7 +89,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         $request = $this->getRequest('POST', [CsrfMiddleware::CSRF_KEY => 'token']);
         $response = $this->getResponse();
 
-        $middleware->__invoke($request, $response);
+        $middleware($request, $response);
     }
 
     public function testInvokeWithPostRequestWithTokenWithInvalidData()
@@ -108,7 +108,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         $request = $this->getRequest('POST', [CsrfMiddleware::CSRF_KEY => 'invalidtoken']);
         $response = $this->getResponse();
 
-        $middleware->__invoke($request, $response);
+        $middleware($request, $response);
     }
 
     /**
