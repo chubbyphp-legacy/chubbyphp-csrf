@@ -38,6 +38,7 @@ use Chubbyphp\Session\Session;
 $session = new Session();
 $middleware = new CsrfMiddleware(new CsrfTokenGenerator(), $session);
 
+/** @var Slim\App $app */
 $app->add($middleware);
 ```
 
@@ -54,6 +55,7 @@ $container = new Container();
 $container->register(new CsrfProvider());
 $container->register(new SessionProvider());
 
+/** @var Slim\App $app */
 $app->add($container['csrf.middleware']);
 ```
 
