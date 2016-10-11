@@ -8,6 +8,8 @@ use Chubbyphp\ErrorHandler\HttpException;
 use Chubbyphp\Session\SessionInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 final class CsrfMiddleware
 {
@@ -23,6 +25,11 @@ final class CsrfMiddleware
 
     const CSRF_KEY = 'csrf';
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     const EXCEPTION_STATUS = 424;
 
     const EXCEPTION_MISSING_IN_SESSION = 'Csrf token is missing within session';
@@ -32,11 +39,16 @@ final class CsrfMiddleware
     /**
      * @param CsrfTokenGeneratorInterface $csrfTokenGenerator
      * @param SessionInterface            $session
+     * @param LoggerInterface|null        $logger
      */
-    public function __construct(CsrfTokenGeneratorInterface $csrfTokenGenerator, SessionInterface $session)
-    {
+    public function __construct(
+        CsrfTokenGeneratorInterface $csrfTokenGenerator,
+        SessionInterface $session,
+        LoggerInterface $logger = null
+    ) {
         $this->csrfTokenGenerator = $csrfTokenGenerator;
         $this->session = $session;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -95,6 +107,8 @@ final class CsrfMiddleware
      */
     private function throwException(Request $request, Response $response, string $message)
     {
+        $this->logger->error('csrf error: {code} {message}', ['code' => self::EXCEPTION_STATUS, 'message' => $message]);
+
         throw HttpException::create($request, $response, self::EXCEPTION_STATUS, $message);
     }
 }

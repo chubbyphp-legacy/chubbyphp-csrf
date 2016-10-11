@@ -14,6 +14,7 @@ A simple csrf solution based on [chubbyphp/chubbyphp-session][2].
  * php: ~7.0
  * chubbyphp/chubbyphp-error-handler: ~1.0
  * chubbyphp/chubbyphp-session: ~1.0
+ * psr/log: ~1.0
 
 ## Suggest
 
