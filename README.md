@@ -31,11 +31,14 @@ Through [Composer](http://getcomposer.org) as [chubbyphp/chubbyphp-csrf][1].
 ```{.php}
 <?php
 
-$app = ...
+use Chubbyphp\Csrf\CsrfMiddleware;
+use Chubbyphp\Csrf\CsrfTokenGenerator;
+use Chubbyphp\Session\Session;
 
-// sample for slim
-$app->add($container['session.middleware']);
+$session = new Session();
+$middleware = new CsrfMiddleware(new CsrfTokenGenerator(), $session);
 
+$app->add($middleware);
 ```
 
 ### CsrfProvider (Pimple)
@@ -51,6 +54,17 @@ $container = new Container();
 $container->register(new CsrfProvider());
 $container->register(new SessionProvider());
 
+$app->add($container['csrf.middleware']);
+```
+
+### CsrfTokenGenerator
+
+```{.php}
+<?php
+
+use Chubbyphp\Csrf\CsrfTokenGenerator;
+
+$generator = new CsrfTokenGenerator();
 ```
 
 [1]: https://packagist.org/packages/chubbyphp/chubbyphp-csrf
