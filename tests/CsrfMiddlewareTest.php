@@ -31,7 +31,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         $middleware($request, $response);
 
         self::assertCount(1, $logger->__logs);
-        self::assertSame('debug', $logger->__logs[0]['level']);
+        self::assertSame('info', $logger->__logs[0]['level']);
         self::assertSame('csrf: set token', $logger->__logs[0]['message']);
     }
 
@@ -52,7 +52,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         });
 
         self::assertCount(1, $logger->__logs);
-        self::assertSame('debug', $logger->__logs[0]['level']);
+        self::assertSame('info', $logger->__logs[0]['level']);
         self::assertSame('csrf: set token', $logger->__logs[0]['message']);
     }
 
@@ -76,7 +76,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
             self::assertSame(CsrfMiddleware::EXCEPTION_STATUS, $e->getCode());
 
             self::assertCount(2, $logger->__logs);
-            self::assertSame('debug', $logger->__logs[0]['level']);
+            self::assertSame('info', $logger->__logs[0]['level']);
             self::assertSame('csrf: check token', $logger->__logs[0]['message']);
             self::assertSame('error', $logger->__logs[1]['level']);
             self::assertSame('csrf: error {code} {message}', $logger->__logs[1]['message']);
@@ -116,7 +116,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
             self::assertSame(CsrfMiddleware::EXCEPTION_STATUS, $e->getCode());
 
             self::assertCount(2, $logger->__logs);
-            self::assertSame('debug', $logger->__logs[0]['level']);
+            self::assertSame('info', $logger->__logs[0]['level']);
             self::assertSame('csrf: check token', $logger->__logs[0]['message']);
             self::assertSame('error', $logger->__logs[1]['level']);
             self::assertSame('csrf: error {code} {message}', $logger->__logs[1]['message']);
@@ -152,7 +152,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         $middleware($request, $response);
 
         self::assertCount(1, $logger->__logs);
-        self::assertSame('debug', $logger->__logs[0]['level']);
+        self::assertSame('info', $logger->__logs[0]['level']);
         self::assertSame('csrf: check token', $logger->__logs[0]['message']);
     }
 
@@ -178,7 +178,7 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
             self::assertSame(CsrfMiddleware::EXCEPTION_STATUS, $e->getCode());
 
             self::assertCount(2, $logger->__logs);
-            self::assertSame('debug', $logger->__logs[0]['level']);
+            self::assertSame('info', $logger->__logs[0]['level']);
             self::assertSame('csrf: check token', $logger->__logs[0]['message']);
             self::assertSame('error', $logger->__logs[1]['level']);
             self::assertSame('csrf: error {code} {message}', $logger->__logs[1]['message']);

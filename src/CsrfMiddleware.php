@@ -61,12 +61,12 @@ final class CsrfMiddleware
     public function __invoke(Request $request, Response $response, callable $next = null)
     {
         if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE', 'PATCH'])) {
-            $this->logger->debug('csrf: check token');
+            $this->logger->info('csrf: check token');
             $this->checkCsrf($request, $response);
         }
 
         if (!$this->session->has($request, self::CSRF_KEY)) {
-            $this->logger->debug('csrf: set token');
+            $this->logger->info('csrf: set token');
             $this->session->set($request, self::CSRF_KEY, $this->csrfTokenGenerator->generate());
         }
 
