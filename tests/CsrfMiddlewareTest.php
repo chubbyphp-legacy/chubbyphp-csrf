@@ -79,10 +79,10 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
             self::assertSame('info', $logger->__logs[0]['level']);
             self::assertSame('csrf: check token', $logger->__logs[0]['message']);
             self::assertSame('error', $logger->__logs[1]['level']);
-            self::assertSame('csrf: error {code} {message}', $logger->__logs[1]['message']);
+            self::assertSame('csrf: error {status} {message}', $logger->__logs[1]['message']);
             self::assertSame(
                 [
-                    'code' => CsrfMiddleware::EXCEPTION_STATUS,
+                    'status' => CsrfMiddleware::EXCEPTION_STATUS,
                     'message' => CsrfMiddleware::EXCEPTION_MISSING_IN_SESSION,
                 ],
                 $logger->__logs[1]['context']
@@ -119,10 +119,10 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
             self::assertSame('info', $logger->__logs[0]['level']);
             self::assertSame('csrf: check token', $logger->__logs[0]['message']);
             self::assertSame('error', $logger->__logs[1]['level']);
-            self::assertSame('csrf: error {code} {message}', $logger->__logs[1]['message']);
+            self::assertSame('csrf: error {status} {message}', $logger->__logs[1]['message']);
             self::assertSame(
                 [
-                    'code' => CsrfMiddleware::EXCEPTION_STATUS,
+                    'status' => CsrfMiddleware::EXCEPTION_STATUS,
                     'message' => CsrfMiddleware::EXCEPTION_MISSING_IN_BODY,
                 ],
                 $logger->__logs[1]['context']
@@ -181,10 +181,10 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
             self::assertSame('info', $logger->__logs[0]['level']);
             self::assertSame('csrf: check token', $logger->__logs[0]['message']);
             self::assertSame('error', $logger->__logs[1]['level']);
-            self::assertSame('csrf: error {code} {message}', $logger->__logs[1]['message']);
+            self::assertSame('csrf: error {status} {message}', $logger->__logs[1]['message']);
             self::assertSame(
                 [
-                    'code' => CsrfMiddleware::EXCEPTION_STATUS,
+                    'status' => CsrfMiddleware::EXCEPTION_STATUS,
                     'message' => CsrfMiddleware::EXCEPTION_IS_NOT_SAME,
                 ],
                 $logger->__logs[1]['context']

@@ -109,7 +109,10 @@ final class CsrfMiddleware
      */
     private function throwException(Request $request, Response $response, string $message)
     {
-        $this->logger->error('csrf: error {code} {message}', ['code' => self::EXCEPTION_STATUS, 'message' => $message]);
+        $this->logger->error(
+            'csrf: error {status} {message}',
+            ['status' => self::EXCEPTION_STATUS, 'message' => $message]
+        );
 
         throw HttpException::create($request, $response, self::EXCEPTION_STATUS, $message);
     }
