@@ -11,8 +11,8 @@
     ],
     "require": {
         "php": "~7.0",
-        "chubbyphp/chubbyphp-error-handler": "~1.0@dev",
-        "chubbyphp/chubbyphp-session": "~1.0@dev",
+        "chubbyphp/chubbyphp-error-handler": "~1.0",
+        "chubbyphp/chubbyphp-session": "~1.0",
         "psr/log": "~1.0"
     },
     "require-dev": {
