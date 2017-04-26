@@ -4,6 +4,7 @@
 [![Total Downloads](https://poser.pugx.org/chubbyphp/chubbyphp-csrf/downloads.png)](https://packagist.org/packages/chubbyphp/chubbyphp-csrf)
 [![Latest Stable Version](https://poser.pugx.org/chubbyphp/chubbyphp-csrf/v/stable.png)](https://packagist.org/packages/chubbyphp/chubbyphp-csrf)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/chubbyphp/chubbyphp-csrf/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/chubbyphp/chubbyphp-csrf/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/chubbyphp/chubbyphp-csrf/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/chubbyphp/chubbyphp-csrf/?branch=master)
 
 ## Description
 
@@ -24,11 +25,15 @@ A simple csrf solution based on [chubbyphp/chubbyphp-session][2].
 
 Through [Composer](http://getcomposer.org) as [chubbyphp/chubbyphp-csrf][1].
 
+```sh
+composer require chubbyphp/chubbyphp-csrf "~1.0"
+```
+
 ## Usage
 
 ### CsrfMiddleware
 
-```{.php}
+```php
 <?php
 
 use Chubbyphp\Csrf\CsrfMiddleware;
@@ -44,7 +49,7 @@ $app->add($middleware);
 
 ### CsrfProvider (Pimple)
 
-```{.php}
+```php
 <?php
 
 namespace Chubbyphp\Csrf\CsrfProvider;
@@ -61,7 +66,7 @@ $app->add($container['csrf.middleware']);
 
 ### CsrfTokenGenerator
 
-```{.php}
+```php
 <?php
 
 use Chubbyphp\Csrf\CsrfTokenGenerator;
