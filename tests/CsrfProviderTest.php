@@ -9,7 +9,7 @@ use Chubbyphp\Session\SessionInterface;
 use Pimple\Container;
 
 /**
- * @covers Chubbyphp\Csrf\CsrfProvider
+ * @covers \Chubbyphp\Csrf\CsrfProvider
  */
 final class CsrfProviderTest extends \PHPUnit_Framework_TestCase
 {

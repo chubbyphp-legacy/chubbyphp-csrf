@@ -11,7 +11,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
 
 /**
- * @covers Chubbyphp\Csrf\CsrfMiddleware
+ * @covers \Chubbyphp\Csrf\CsrfMiddleware
  */
 final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
 {
