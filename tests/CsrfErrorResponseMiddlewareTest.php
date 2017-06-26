@@ -2,26 +2,27 @@
 
 namespace Chubbyphp\Tests\Csrf;
 
+use Chubbyphp\Csrf\CsrfErrorHandlerInterface;
 use Chubbyphp\Csrf\CsrfTokenGeneratorInterface;
-use Chubbyphp\Csrf\CsrfMiddleware;
-use Chubbyphp\ErrorHandler\HttpException;
+use Chubbyphp\Csrf\CsrfErrorResponseMiddleware;
 use Chubbyphp\Session\SessionInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
 
 /**
- * @covers \Chubbyphp\Csrf\CsrfMiddleware
+ * @covers \Chubbyphp\Csrf\CsrfErrorResponseMiddleware
  */
-final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
+final class CsrfErrorResponseMiddlewareTest extends \PHPUnit_Framework_TestCase
 {
     public function testInvokeWithGetRequestWithoutNext()
     {
         $logger = $this->getLogger();
 
-        $middleware = new CsrfMiddleware(
+        $middleware = new CsrfErrorResponseMiddleware(
             $this->getCsrfTokenGenerator(),
             $this->getSession([]),
+            $this->getErrorHandler(),
             $logger
         );
 
@@ -39,9 +40,10 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
     {
         $logger = $this->getLogger();
 
-        $middleware = new CsrfMiddleware(
+        $middleware = new CsrfErrorResponseMiddleware(
             $this->getCsrfTokenGenerator(),
             $this->getSession([]),
+            $this->getErrorHandler(),
             $logger
         );
 
@@ -58,95 +60,86 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
 
     public function testInvokeWithPostRequestWithoutToken()
     {
-        try {
-            $logger = $this->getLogger();
+        $logger = $this->getLogger();
 
-            $middleware = new CsrfMiddleware(
-                $this->getCsrfTokenGenerator(),
-                $this->getSession([]),
-                $logger
-            );
+        $middleware = new CsrfErrorResponseMiddleware(
+            $this->getCsrfTokenGenerator(),
+            $this->getSession([]),
+            $this->getErrorHandler(),
+            $logger
+        );
 
-            $request = $this->getRequest('POST', []);
-            $response = $this->getResponse();
+        $request = $this->getRequest('POST', []);
+        $response = $this->getResponse();
 
-            $middleware($request, $response);
-        } catch (HttpException $e) {
-            self::assertSame(CsrfMiddleware::EXCEPTION_MISSING_IN_SESSION, $e->getMessage());
-            self::assertSame(CsrfMiddleware::EXCEPTION_STATUS, $e->getCode());
+        $middleware($request, $response);
 
-            self::assertCount(2, $logger->__logs);
-            self::assertSame('info', $logger->__logs[0]['level']);
-            self::assertSame('csrf: check token', $logger->__logs[0]['message']);
-            self::assertSame('error', $logger->__logs[1]['level']);
-            self::assertSame('csrf: error {status} {message}', $logger->__logs[1]['message']);
-            self::assertSame(
-                [
-                    'status' => CsrfMiddleware::EXCEPTION_STATUS,
-                    'message' => CsrfMiddleware::EXCEPTION_MISSING_IN_SESSION,
-                ],
-                $logger->__logs[1]['context']
-            );
+        self::assertSame(CsrfErrorResponseMiddleware::EXCEPTION_MISSING_IN_SESSION, $response->getReasonPhrase());
+        self::assertSame(CsrfErrorResponseMiddleware::EXCEPTION_STATUS, $response->getStatusCode());
 
-            return;
-        }
-
-        self::fail(sprintf('Expected %s', HttpException::class));
+        self::assertCount(2, $logger->__logs);
+        self::assertSame('info', $logger->__logs[0]['level']);
+        self::assertSame('csrf: check token', $logger->__logs[0]['message']);
+        self::assertSame('error', $logger->__logs[1]['level']);
+        self::assertSame('csrf: error {status} {message}', $logger->__logs[1]['message']);
+        self::assertSame(
+            [
+                'status' => CsrfErrorResponseMiddleware::EXCEPTION_STATUS,
+                'message' => CsrfErrorResponseMiddleware::EXCEPTION_MISSING_IN_SESSION,
+            ],
+            $logger->__logs[1]['context']
+        );
     }
 
     public function testInvokeWithPostRequestWithTokenWithoutData()
     {
-        try {
-            $logger = $this->getLogger();
+        $logger = $this->getLogger();
 
-            $middleware = new CsrfMiddleware(
-                $this->getCsrfTokenGenerator(),
-                $this->getSession([
-                    CsrfMiddleware::CSRF_KEY => 'token',
-                ]),
-                $logger
-            );
+        $middleware = new CsrfErrorResponseMiddleware(
+            $this->getCsrfTokenGenerator(),
+            $this->getSession([
+                CsrfErrorResponseMiddleware::CSRF_KEY => 'token',
+            ]),
+            $this->getErrorHandler(),
+            $logger
+        );
 
-            $request = $this->getRequest('POST', []);
-            $response = $this->getResponse();
+        $request = $this->getRequest('POST', []);
+        $response = $this->getResponse();
 
-            $middleware($request, $response);
-        } catch (HttpException $e) {
-            self::assertSame(CsrfMiddleware::EXCEPTION_MISSING_IN_BODY, $e->getMessage());
-            self::assertSame(CsrfMiddleware::EXCEPTION_STATUS, $e->getCode());
+        $middleware($request, $response);
 
-            self::assertCount(2, $logger->__logs);
-            self::assertSame('info', $logger->__logs[0]['level']);
-            self::assertSame('csrf: check token', $logger->__logs[0]['message']);
-            self::assertSame('error', $logger->__logs[1]['level']);
-            self::assertSame('csrf: error {status} {message}', $logger->__logs[1]['message']);
-            self::assertSame(
-                [
-                    'status' => CsrfMiddleware::EXCEPTION_STATUS,
-                    'message' => CsrfMiddleware::EXCEPTION_MISSING_IN_BODY,
-                ],
-                $logger->__logs[1]['context']
-            );
+        self::assertSame(CsrfErrorResponseMiddleware::EXCEPTION_MISSING_IN_BODY, $response->getReasonPhrase());
+        self::assertSame(CsrfErrorResponseMiddleware::EXCEPTION_STATUS, $response->getStatusCode());
 
-            return;
-        }
-
-        self::fail(sprintf('Expected %s', HttpException::class));
+        self::assertCount(2, $logger->__logs);
+        self::assertSame('info', $logger->__logs[0]['level']);
+        self::assertSame('csrf: check token', $logger->__logs[0]['message']);
+        self::assertSame('error', $logger->__logs[1]['level']);
+        self::assertSame('csrf: error {status} {message}', $logger->__logs[1]['message']);
+        self::assertSame(
+            [
+                'status' => CsrfErrorResponseMiddleware::EXCEPTION_STATUS,
+                'message' => CsrfErrorResponseMiddleware::EXCEPTION_MISSING_IN_BODY,
+            ],
+            $logger->__logs[1]['context']
+        );
     }
 
     public function testInvokeWithPostRequestWithTokenWithData()
     {
         $logger = $this->getLogger();
 
-        $middleware = new CsrfMiddleware(
+        $middleware = new CsrfErrorResponseMiddleware(
             $this->getCsrfTokenGenerator(),
             $this->getSession([
-                CsrfMiddleware::CSRF_KEY => 'token',
+                CsrfErrorResponseMiddleware::CSRF_KEY => 'token',
             ]),
+            $this->getErrorHandler(),
             $logger
         );
 
-        $request = $this->getRequest('POST', [CsrfMiddleware::CSRF_KEY => 'token']);
+        $request = $this->getRequest('POST', [CsrfErrorResponseMiddleware::CSRF_KEY => 'token']);
         $response = $this->getResponse();
 
         $middleware($request, $response);
@@ -158,42 +151,37 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
 
     public function testInvokeWithPostRequestWithTokenWithInvalidData()
     {
-        try {
-            $logger = $this->getLogger();
+        $logger = $this->getLogger();
 
-            $middleware = new CsrfMiddleware(
-                $this->getCsrfTokenGenerator(),
-                $this->getSession([
-                    CsrfMiddleware::CSRF_KEY => 'token',
-                ]),
-                $logger
-            );
+        $middleware = new CsrfErrorResponseMiddleware(
+            $this->getCsrfTokenGenerator(),
+            $this->getSession([
+                CsrfErrorResponseMiddleware::CSRF_KEY => 'token',
+            ]),
+            $this->getErrorHandler(),
+            $logger
+        );
 
-            $request = $this->getRequest('POST', [CsrfMiddleware::CSRF_KEY => 'invalidtoken']);
-            $response = $this->getResponse();
+        $request = $this->getRequest('POST', [CsrfErrorResponseMiddleware::CSRF_KEY => 'invalidtoken']);
+        $response = $this->getResponse();
 
-            $middleware($request, $response);
-        } catch (HttpException $e) {
-            self::assertSame(CsrfMiddleware::EXCEPTION_IS_NOT_SAME, $e->getMessage());
-            self::assertSame(CsrfMiddleware::EXCEPTION_STATUS, $e->getCode());
+        $middleware($request, $response);
 
-            self::assertCount(2, $logger->__logs);
-            self::assertSame('info', $logger->__logs[0]['level']);
-            self::assertSame('csrf: check token', $logger->__logs[0]['message']);
-            self::assertSame('error', $logger->__logs[1]['level']);
-            self::assertSame('csrf: error {status} {message}', $logger->__logs[1]['message']);
-            self::assertSame(
-                [
-                    'status' => CsrfMiddleware::EXCEPTION_STATUS,
-                    'message' => CsrfMiddleware::EXCEPTION_IS_NOT_SAME,
-                ],
-                $logger->__logs[1]['context']
-            );
+        self::assertSame(CsrfErrorResponseMiddleware::EXCEPTION_IS_NOT_SAME, $response->getReasonPhrase());
+        self::assertSame(CsrfErrorResponseMiddleware::EXCEPTION_STATUS, $response->getStatusCode());
 
-            return;
-        }
-
-        self::fail(sprintf('Expected %s', HttpException::class));
+        self::assertCount(2, $logger->__logs);
+        self::assertSame('info', $logger->__logs[0]['level']);
+        self::assertSame('csrf: check token', $logger->__logs[0]['message']);
+        self::assertSame('error', $logger->__logs[1]['level']);
+        self::assertSame('csrf: error {status} {message}', $logger->__logs[1]['message']);
+        self::assertSame(
+            [
+                'status' => CsrfErrorResponseMiddleware::EXCEPTION_STATUS,
+                'message' => CsrfErrorResponseMiddleware::EXCEPTION_IS_NOT_SAME,
+            ],
+            $logger->__logs[1]['context']
+        );
     }
 
     /**
@@ -239,16 +227,44 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         /** @var Response|\PHPUnit_Framework_MockObject_MockObject $response */
         $response = $this
             ->getMockBuilder(Response::class)
-            ->setMethods(['withStatus'])
+            ->setMethods(['withStatus', 'getStatusCode', 'getReasonPhrase'])
             ->getMockForAbstractClass()
         ;
+
+        $response->__data = [
+            'code' => null,
+            'reasonPhrase' => null,
+        ];
 
         $response
             ->expects(self::any())
             ->method('withStatus')
             ->willReturnCallback(
-                function (int $status) use ($response) {
+                function (int $code, string $reasonPhrase) use ($response) {
+                    $response->__data['code'] = $code;
+                    $response->__data['reasonPhrase'] = $reasonPhrase;
+
                     return $response;
+                }
+            )
+        ;
+
+        $response
+            ->expects(self::any())
+            ->method('getStatusCode')
+            ->willReturnCallback(
+                function () use ($response) {
+                    return $response->__data['code'];
+                }
+            )
+        ;
+
+        $response
+            ->expects(self::any())
+            ->method('getReasonPhrase')
+            ->willReturnCallback(
+                function () use ($response) {
+                    return $response->__data['reasonPhrase'];
                 }
             )
         ;
@@ -303,6 +319,31 @@ final class CsrfMiddlewareTest extends \PHPUnit_Framework_TestCase
         ;
 
         return $session;
+    }
+
+    /**
+     * @return CsrfErrorHandlerInterface
+     */
+    private function getErrorHandler(): CsrfErrorHandlerInterface
+    {
+        /** @var CsrfErrorHandlerInterface|\PHPUnit_Framework_MockObject_MockObject $errorHandler */
+        $errorHandler = $this
+            ->getMockBuilder(CsrfErrorHandlerInterface::class)
+            ->setMethods(['errorResponse'])
+            ->getMockForAbstractClass()
+        ;
+
+        $errorHandler
+            ->expects(self::any())
+            ->method('errorResponse')
+            ->willReturnCallback(
+                function (Request $request, Response $response, int $code, string $reasonPhrase) use ($errorHandler) {
+                    return $response->withStatus($code, $reasonPhrase);
+                }
+            )
+        ;
+
+        return $errorHandler;
     }
 
     /**

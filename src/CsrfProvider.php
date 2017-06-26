@@ -6,6 +6,8 @@ namespace Chubbyphp\Csrf;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 
 final class CsrfProvider implements ServiceProviderInterface
 {
@@ -20,10 +22,22 @@ final class CsrfProvider implements ServiceProviderInterface
             return new CsrfTokenGenerator($container['csrf.tokenGenerator.entropy']);
         };
 
+        $container['csrf.errorResponseHandler'] = new class() implements CsrfErrorHandlerInterface {
+            public function errorResponse(
+                Request $request,
+                Response $response,
+                int $code,
+                string $reasonPhrase
+            ): Response {
+                return $response->withStatus($code, $reasonPhrase);
+            }
+        };
+
         $container['csrf.middleware'] = function () use ($container) {
-            return new CsrfMiddleware(
+            return new CsrfErrorResponseMiddleware(
                 $container['csrf.tokenGenerator'],
                 $container['session'],
+                $container['csrf.errorResponseHandler'],
                 $container['logger'] ?? null
             );
         };

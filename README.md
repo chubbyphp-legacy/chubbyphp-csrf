@@ -31,7 +31,36 @@ composer require chubbyphp/chubbyphp-csrf "~1.0"
 
 ## Usage
 
-### CsrfMiddleware
+### CsrfErrorResponseMiddleware
+
+```php
+<?php
+
+use Chubbyphp\Csrf\CsrfErrorResponseMiddleware;
+use Chubbyphp\Csrf\CsrfTokenGenerator;
+use Chubbyphp\Session\Session;
+
+$session = new Session();
+$middleware = new CsrfErrorResponseMiddleware(
+    new CsrfTokenGenerator(),
+    $session,
+    new class() implements CsrfErrorHandlerInterface {
+        public function errorResponse(
+            Request $request,
+            Response $response,
+            int $code,
+            string $reasonPhrase
+        ): Response {
+            return $response->withStatus($code, $reasonPhrase);
+        }
+    }
+);
+
+/** @var Slim\App $app */
+$app->add($middleware);
+```
+
+### CsrfMiddleware (deprecated)
 
 ```php
 <?php
