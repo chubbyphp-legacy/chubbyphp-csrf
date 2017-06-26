@@ -6,6 +6,7 @@ use Chubbyphp\Csrf\CsrfErrorHandlerInterface;
 use Chubbyphp\Csrf\CsrfErrorResponseMiddleware;
 use Chubbyphp\Csrf\CsrfProvider;
 use Chubbyphp\Csrf\CsrfTokenGeneratorInterface;
+use Chubbyphp\ErrorHandler\HttpException;
 use Chubbyphp\Session\SessionInterface;
 use Pimple\Container;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -37,10 +38,16 @@ final class CsrfProviderTest extends \PHPUnit_Framework_TestCase
         $request = $this->getRequest();
         $response = $this->getResponse();
 
-        self::assertSame(
-            $response,
-            $container['csrf.errorResponseHandler']->errorResponse($request, $response, 424, 'test')
-        );
+        try {
+            $container['csrf.errorResponseHandler']->errorResponse($request, $response, 424, 'test');
+        } catch (HttpException $e) {
+            self::assertSame(424, $e->getCode());
+            self::assertSame('test', $e->getMessage());
+
+            return;
+        }
+
+        self::fail(sprintf('Expected %s', HttpException::class));
     }
 
     /**
@@ -50,11 +57,8 @@ final class CsrfProviderTest extends \PHPUnit_Framework_TestCase
     {
         return $this
             ->getMockBuilder(Request::class)
-            ->setMethods(['getMethod'])
             ->getMockForAbstractClass()
         ;
-
-        return $request;
     }
 
     /**
@@ -62,23 +66,10 @@ final class CsrfProviderTest extends \PHPUnit_Framework_TestCase
      */
     private function getResponse(): Response
     {
-        $response = $this
+        return $this
             ->getMockBuilder(Response::class)
-            ->setMethods(['withStatus'])
             ->getMockForAbstractClass()
         ;
-
-        $response
-            ->expects(self::any())
-            ->method('withStatus')
-            ->willReturnCallback(
-                function (int $status) use ($response) {
-                    return $response;
-                }
-            )
-        ;
-
-        return $response;
     }
 
     /**

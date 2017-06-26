@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chubbyphp\Csrf;
 
+use Chubbyphp\ErrorHandler\HttpException;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -29,7 +30,7 @@ final class CsrfProvider implements ServiceProviderInterface
                 int $code,
                 string $reasonPhrase
             ): Response {
-                return $response->withStatus($code, $reasonPhrase);
+                throw HttpException::create($request, $response, $code, $reasonPhrase);
             }
         };
 
