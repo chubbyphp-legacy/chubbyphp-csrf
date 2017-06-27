@@ -36,6 +36,7 @@ composer require chubbyphp/chubbyphp-csrf "~1.0"
 ```php
 <?php
 
+use Chubbyphp\Csrf\CsrfErrorHandlerInterface;
 use Chubbyphp\Csrf\CsrfErrorResponseMiddleware;
 use Chubbyphp\Csrf\CsrfTokenGenerator;
 use Chubbyphp\Session\Session;
