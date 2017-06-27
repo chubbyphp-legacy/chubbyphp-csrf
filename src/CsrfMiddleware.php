@@ -19,7 +19,7 @@ final class CsrfMiddleware
     /**
      * @var CsrfErrorResponseMiddleware
      */
-    private $csrfErrorResponseMiddleware;
+    private $middleware;
 
     const CSRF_KEY = 'csrf';
 
@@ -39,7 +39,7 @@ final class CsrfMiddleware
         SessionInterface $session,
         LoggerInterface $logger = null
     ) {
-        $this->csrfErrorResponseMiddleware = new CsrfErrorResponseMiddleware(
+        $this->middleware = new CsrfErrorResponseMiddleware(
             $csrfTokenGenerator,
             $session,
             new class() implements CsrfErrorHandlerInterface {
@@ -47,7 +47,7 @@ final class CsrfMiddleware
                     Request $request,
                     Response $response,
                     int $code,
-                    string $reasonPhrase
+                    string $reasonPhrase = null
                 ): Response {
                     throw HttpException::create($request, $response, $code, $reasonPhrase);
                 }
@@ -69,6 +69,6 @@ final class CsrfMiddleware
      */
     public function __invoke(Request $request, Response $response, callable $next = null)
     {
-        return $this->csrfErrorResponseMiddleware->__invoke($request, $response, $next);
+        return $this->middleware->__invoke($request, $response, $next);
     }
 }
