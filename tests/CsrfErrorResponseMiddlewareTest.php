@@ -337,7 +337,7 @@ final class CsrfErrorResponseMiddlewareTest extends \PHPUnit_Framework_TestCase
             ->expects(self::any())
             ->method('errorResponse')
             ->willReturnCallback(
-                function (Request $request, Response $response, int $code, string $reasonPhrase = null) {
+                function (Request $request, Response $response, int $code, string $reasonPhrase) {
                     return $response->withStatus($code, $reasonPhrase);
                 }
             )

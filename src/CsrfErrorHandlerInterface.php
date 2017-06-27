@@ -17,10 +17,5 @@ interface CsrfErrorHandlerInterface
      *
      * @return Response
      */
-    public function errorResponse(
-        Request $request,
-        Response $response,
-        int $code,
-        string $reasonPhrase = null
-    ): Response;
+    public function errorResponse(Request $request, Response $response, int $code, string $reasonPhrase): Response;
 }

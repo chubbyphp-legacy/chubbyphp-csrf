@@ -47,7 +47,7 @@ final class CsrfMiddleware
                     Request $request,
                     Response $response,
                     int $code,
-                    string $reasonPhrase = null
+                    string $reasonPhrase
                 ): Response {
                     throw HttpException::create($request, $response, $code, $reasonPhrase);
                 }

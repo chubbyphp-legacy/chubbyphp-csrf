@@ -28,7 +28,7 @@ final class CsrfProvider implements ServiceProviderInterface
                 Request $request,
                 Response $response,
                 int $code,
-                string $reasonPhrase = null
+                string $reasonPhrase
             ): Response {
                 throw HttpException::create($request, $response, $code, $reasonPhrase);
             }
