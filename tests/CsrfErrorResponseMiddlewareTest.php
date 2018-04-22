@@ -6,6 +6,7 @@ use Chubbyphp\Csrf\CsrfErrorHandlerInterface;
 use Chubbyphp\Csrf\CsrfTokenGeneratorInterface;
 use Chubbyphp\Csrf\CsrfErrorResponseMiddleware;
 use Chubbyphp\Session\SessionInterface;
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
@@ -13,7 +14,7 @@ use Psr\Log\LoggerInterface;
 /**
  * @covers \Chubbyphp\Csrf\CsrfErrorResponseMiddleware
  */
-final class CsrfErrorResponseMiddlewareTest extends \PHPUnit_Framework_TestCase
+final class CsrfErrorResponseMiddlewareTest extends TestCase
 {
     public function testInvokeWithGetRequestWithoutNext()
     {

@@ -3,11 +3,12 @@
 namespace Chubbyphp\Tests\Csrf;
 
 use Chubbyphp\Csrf\CsrfTokenGenerator;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Chubbyphp\Csrf\CsrfTokenGenerator
  */
-final class CsrfTokenGeneratorTest extends \PHPUnit_Framework_TestCase
+final class CsrfTokenGeneratorTest extends TestCase
 {
     public function testGenerate()
     {

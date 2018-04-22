@@ -8,6 +8,7 @@ use Chubbyphp\Csrf\CsrfProvider;
 use Chubbyphp\Csrf\CsrfTokenGeneratorInterface;
 use Chubbyphp\ErrorHandler\HttpException;
 use Chubbyphp\Session\SessionInterface;
+use PHPUnit\Framework\TestCase;
 use Pimple\Container;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -15,7 +16,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 /**
  * @covers \Chubbyphp\Csrf\CsrfProvider
  */
-final class CsrfProviderTest extends \PHPUnit_Framework_TestCase
+final class CsrfProviderTest extends TestCase
 {
     public function testRegister()
     {
